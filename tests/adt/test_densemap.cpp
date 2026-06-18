@@ -1,5 +1,6 @@
 #include "tinytensor/adt/DenseMap.h"
 #include <gtest/gtest.h>
+#include <memory>
 
 using namespace tinytensor::adt;
 
@@ -136,4 +137,24 @@ TEST(DenseMapTest, CopyAndMove) {
   Map5 = std::move(Map3);
   EXPECT_EQ(Map5.size(), 2U);
   EXPECT_TRUE(Map3.empty());
+}
+
+TEST(DenseMapTest, NonTrivialValueEraseReinsertAndGrow) {
+  DenseMap<int, std::unique_ptr<int>> Map;
+  Map[1] = std::make_unique<int>(10);
+  Map[2] = std::make_unique<int>(20);
+
+  EXPECT_TRUE(Map.erase(1));
+  EXPECT_FALSE(Map.count(1));
+
+  Map[1] = std::make_unique<int>(30);
+  EXPECT_EQ(*Map[1], 30);
+
+  for (int i = 3; i < 80; ++i) {
+    Map[i] = std::make_unique<int>(i);
+  }
+
+  EXPECT_EQ(Map.size(), 79U);
+  EXPECT_EQ(*Map[2], 20);
+  EXPECT_EQ(*Map[79], 79);
 }

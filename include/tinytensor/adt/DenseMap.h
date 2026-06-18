@@ -229,10 +229,18 @@ public:
   }
 
   // Iterators
-  iterator begin() { return iterator(Buckets, Buckets + NumBuckets); }
-  const_iterator begin() const { return const_iterator(Buckets, Buckets + NumBuckets); }
-  iterator end() { return iterator(Buckets + NumBuckets, Buckets + NumBuckets); }
-  const_iterator end() const { return const_iterator(Buckets + NumBuckets, Buckets + NumBuckets); }
+  iterator begin() {
+    return NumBuckets == 0 ? iterator() : iterator(Buckets, Buckets + NumBuckets);
+  }
+  const_iterator begin() const {
+    return NumBuckets == 0 ? const_iterator() : const_iterator(Buckets, Buckets + NumBuckets);
+  }
+  iterator end() {
+    return NumBuckets == 0 ? iterator() : iterator(Buckets + NumBuckets, Buckets + NumBuckets);
+  }
+  const_iterator end() const {
+    return NumBuckets == 0 ? const_iterator() : const_iterator(Buckets + NumBuckets, Buckets + NumBuckets);
+  }
 
   // Size details
   unsigned size() const { return NumEntries; }
@@ -242,8 +250,7 @@ public:
   void clear() {
     if (NumBuckets == 0) return;
     for (unsigned i = 0; i < NumBuckets; ++i) {
-      Buckets[i].first.~KeyT();
-      Buckets[i].second.~ValueT();
+      Buckets[i].~BucketT();
     }
     std::free(Buckets);
     Buckets = nullptr;
@@ -395,8 +402,7 @@ private:
     NumTombstones = 0;
 
     for (unsigned i = 0; i < NumBuckets; ++i) {
-      new (&Buckets[i].first) KeyT(KeyInfoT::getEmptyKey());
-      new (&Buckets[i].second) ValueT();
+      new (&Buckets[i]) BucketT(KeyInfoT::getEmptyKey(), ValueT());
     }
 
     // Copy/move elements over
@@ -411,11 +417,9 @@ private:
         B->second = std::move(OldB.second);
         ++NumEntries;
 
-        OldB.first.~KeyT();
-        OldB.second.~ValueT();
+        OldB.~BucketT();
       } else {
-        OldB.first.~KeyT();
-        OldB.second.~ValueT();
+        OldB.~BucketT();
       }
     }
 

@@ -6,6 +6,7 @@
 #include <ostream>
 #include <cstring>
 #include <cassert>
+#include <algorithm>
 
 namespace tinytensor {
 namespace adt {
@@ -38,14 +39,16 @@ public:
       : Data(SV.data()), Length(SV.size()) {}
 
   // Conversions
-  operator std::string_view() const { return std::string_view(Data, Length); }
+  operator std::string_view() const {
+    return Length == 0 ? std::string_view() : std::string_view(Data, Length);
+  }
 
   // Iterators
   using const_iterator = const char *;
   using iterator = const char *;
 
   constexpr const_iterator begin() const { return Data; }
-  constexpr const_iterator end() const { return Data + Length; }
+  constexpr const_iterator end() const { return Data ? Data + Length : Data; }
 
   // Accessors
   constexpr const char *data() const { return Data; }
@@ -69,11 +72,15 @@ public:
 
   // Operations
   constexpr bool startswith(StringRef Prefix) const {
+    if (Prefix.Length == 0)
+      return true;
     return Length >= Prefix.Length &&
            std::string_view(Data, Prefix.Length) == std::string_view(Prefix.Data, Prefix.Length);
   }
 
   constexpr bool endswith(StringRef Suffix) const {
+    if (Suffix.Length == 0)
+      return true;
     return Length >= Suffix.Length &&
            std::string_view(Data + Length - Suffix.Length, Suffix.Length) ==
                std::string_view(Suffix.Data, Suffix.Length);
@@ -81,13 +88,16 @@ public:
 
   constexpr StringRef substr(size_t Start, size_t N = npos) const {
     assert(Start <= Length && "Start index out of bounds");
-    return StringRef(Data + Start, std::min(N, Length - Start));
+    return StringRef(Data ? Data + Start : Data, std::min(N, Length - Start));
   }
 
   constexpr int compare(StringRef RHS) const {
     size_t MinLen = std::min(Length, RHS.Length);
-    if (int Res = std::string_view(Data, MinLen).compare(std::string_view(RHS.Data, MinLen)))
-      return Res;
+    if (MinLen > 0) {
+      int Res = std::char_traits<char>::compare(Data, RHS.Data, MinLen);
+      if (Res != 0)
+        return Res;
+    }
     if (Length < RHS.Length)
       return -1;
     if (Length > RHS.Length)
@@ -95,13 +105,19 @@ public:
     return 0;
   }
 
-  std::string str() const { return std::string(Data, Length); }
+  std::string str() const {
+    return Length == 0 ? std::string() : std::string(Data, Length);
+  }
 };
 
 // Comparison operators
 inline bool operator==(StringRef LHS, StringRef RHS) {
-  return LHS.size() == RHS.size() &&
-         std::string_view(LHS.data(), LHS.size()) == std::string_view(RHS.data(), RHS.size());
+  if (LHS.size() != RHS.size())
+    return false;
+  if (LHS.size() == 0)
+    return true;
+  return std::string_view(LHS.data(), LHS.size()) ==
+         std::string_view(RHS.data(), RHS.size());
 }
 
 inline bool operator!=(StringRef LHS, StringRef RHS) { return !(LHS == RHS); }
@@ -123,7 +139,8 @@ inline bool operator>=(StringRef LHS, StringRef RHS) {
 }
 
 inline std::ostream &operator<<(std::ostream &OS, StringRef Str) {
-  OS.write(Str.data(), Str.size());
+  if (!Str.empty())
+    OS.write(Str.data(), Str.size());
   return OS;
 }
 

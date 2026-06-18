@@ -87,3 +87,15 @@ TEST(StringRefTest, StreamInsertion) {
   SS << S;
   EXPECT_EQ(SS.str(), "mlir-opt");
 }
+
+TEST(StringRefTest, EmptyOperationsAreSafe) {
+  StringRef Empty;
+  EXPECT_TRUE(Empty.startswith(""));
+  EXPECT_TRUE(Empty.endswith(""));
+  EXPECT_EQ(Empty.compare(""), 0);
+  EXPECT_EQ(Empty.str(), "");
+
+  std::stringstream SS;
+  SS << Empty;
+  EXPECT_EQ(SS.str(), "");
+}
