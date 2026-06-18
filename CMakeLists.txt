@@ -10,6 +10,14 @@ option(TINYTENSOR_BUILD_TT_OPT "Build the MLIR-based tt-opt skeleton" ON)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+add_library(tinytensor_support INTERFACE)
+target_include_directories(tinytensor_support INTERFACE
+  ${CMAKE_CURRENT_BINARY_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+set(TINYTENSOR_HAS_MLIR OFF)
+
 if(TINYTENSOR_BUILD_TT_OPT)
   # Default LLVM/MLIR build paths to the user's directory if not specified.
   if(NOT LLVM_DIR)
@@ -23,6 +31,7 @@ if(TINYTENSOR_BUILD_TT_OPT)
   find_package(MLIR CONFIG)
 
   if(LLVM_FOUND AND MLIR_FOUND)
+    set(TINYTENSOR_HAS_MLIR ON)
     message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
     message(STATUS "Using LLVM_DIR: ${LLVM_DIR}")
     message(STATUS "Using MLIR_DIR: ${MLIR_DIR}")
@@ -30,10 +39,16 @@ if(TINYTENSOR_BUILD_TT_OPT)
     include_directories(${LLVM_INCLUDE_DIRS})
     include_directories(${MLIR_INCLUDE_DIRS})
     add_definitions(${LLVM_DEFINITIONS})
-    add_subdirectory(tools/tt-opt)
   else()
     message(STATUS "LLVM/MLIR not found; skipping tt-opt. Set TINYTENSOR_BUILD_TT_OPT=OFF to silence this path.")
   endif()
+endif()
+
+add_subdirectory(lib)
+
+if(TINYTENSOR_HAS_MLIR)
+  add_subdirectory(tools/tt-opt)
+  add_subdirectory(tools/tt-emit)
 endif()
 
 # Add GoogleTest

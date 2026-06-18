@@ -1,5 +1,5 @@
-#ifndef TINYTENSOR_ADT_SMALLVECTOR_H
-#define TINYTENSOR_ADT_SMALLVECTOR_H
+#ifndef TINYTENSOR_SUPPORT_ADT_SMALLVECTOR_H
+#define TINYTENSOR_SUPPORT_ADT_SMALLVECTOR_H
 
 #include <cassert>
 #include <cstddef>
@@ -305,4 +305,4 @@ public:
 } // namespace adt
 } // namespace tinytensor
 
-#endif // TINYTENSOR_ADT_SMALLVECTOR_H
+#endif // TINYTENSOR_SUPPORT_ADT_SMALLVECTOR_H

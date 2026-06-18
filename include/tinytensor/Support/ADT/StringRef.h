@@ -1,5 +1,5 @@
-#ifndef TINYTENSOR_ADT_STRINGREF_H
-#define TINYTENSOR_ADT_STRINGREF_H
+#ifndef TINYTENSOR_SUPPORT_ADT_STRINGREF_H
+#define TINYTENSOR_SUPPORT_ADT_STRINGREF_H
 
 #include <string>
 #include <string_view>
@@ -147,4 +147,4 @@ inline std::ostream &operator<<(std::ostream &OS, StringRef Str) {
 } // namespace adt
 } // namespace tinytensor
 
-#endif // TINYTENSOR_ADT_STRINGREF_H
+#endif // TINYTENSOR_SUPPORT_ADT_STRINGREF_H

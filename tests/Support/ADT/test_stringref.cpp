@@ -1,4 +1,4 @@
-#include "tinytensor/adt/StringRef.h"
+#include "tinytensor/Support/ADT/StringRef.h"
 #include <gtest/gtest.h>
 #include <sstream>
 

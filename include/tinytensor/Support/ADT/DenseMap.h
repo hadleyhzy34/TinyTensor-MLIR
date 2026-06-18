@@ -1,5 +1,5 @@
-#ifndef TINYTENSOR_ADT_DENSEMAP_H
-#define TINYTENSOR_ADT_DENSEMAP_H
+#ifndef TINYTENSOR_SUPPORT_ADT_DENSEMAP_H
+#define TINYTENSOR_SUPPORT_ADT_DENSEMAP_H
 
 #include <cassert>
 #include <cstdlib>
@@ -7,7 +7,7 @@
 #include <new>
 #include <utility>
 #include <type_traits>
-#include "tinytensor/adt/StringRef.h"
+#include "tinytensor/Support/ADT/StringRef.h"
 
 namespace tinytensor {
 namespace adt {
@@ -432,4 +432,4 @@ private:
 } // namespace adt
 } // namespace tinytensor
 
-#endif // TINYTENSOR_ADT_DENSEMAP_H
+#endif // TINYTENSOR_SUPPORT_ADT_DENSEMAP_H

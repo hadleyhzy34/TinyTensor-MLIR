@@ -1,4 +1,4 @@
-#include "tinytensor/adt/SmallVector.h"
+#include "tinytensor/Support/ADT/SmallVector.h"
 #include <gtest/gtest.h>
 
 using namespace tinytensor::adt;

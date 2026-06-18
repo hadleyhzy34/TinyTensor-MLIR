@@ -1,12 +1,16 @@
 add_executable(tinytensor-tests
-  adt/test_stringref.cpp
-  adt/test_smallvector.cpp
-  adt/test_densemap.cpp
-  adt/test_compiler_usecases.cpp
+  Support/ADT/test_stringref.cpp
+  Support/ADT/test_smallvector.cpp
+  Support/ADT/test_densemap.cpp
+  Support/ADT/test_compiler_usecases.cpp
+  Frontend/test_types.cpp
+  Frontend/test_graph.cpp
 )
 
 # Link against the system GoogleTest libraries
 target_link_libraries(tinytensor-tests PRIVATE
+  tinytensor_support
+  tinytensor_frontend
   GTest::gtest
   GTest::gtest_main
 )

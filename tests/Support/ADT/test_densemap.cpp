@@ -1,4 +1,4 @@
-#include "tinytensor/adt/DenseMap.h"
+#include "tinytensor/Support/ADT/DenseMap.h"
 #include <gtest/gtest.h>
 #include <memory>
 

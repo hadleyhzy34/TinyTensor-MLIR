@@ -1,6 +1,6 @@
-#include "tinytensor/adt/StringRef.h"
-#include "tinytensor/adt/SmallVector.h"
-#include "tinytensor/adt/DenseMap.h"
+#include "tinytensor/Support/ADT/StringRef.h"
+#include "tinytensor/Support/ADT/SmallVector.h"
+#include "tinytensor/Support/ADT/DenseMap.h"
 #include <gtest/gtest.h>
 
 using namespace tinytensor::adt;
