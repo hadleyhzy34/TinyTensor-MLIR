@@ -11,8 +11,8 @@ This is Phase 1A relative to [../roadmap_v3.md](../roadmap_v3.md): it establishe
 | 1A.0 Build Skeleton And Targets | Done | 2026-06-18 | Added skeleton CMake targets and `tt-emit` placeholder. |
 | 1A.1 Frontend Types And Stable IDs | Done | 2026-06-18 | Added MLIR-free frontend type, spec, and ID headers with unit tests. |
 | 1A.2 Minimal Graph Inputs And Outputs | Done | 2026-06-18 | Added symbolic `Tensor`, input/output `Graph`, graph values, and verifier tests. |
-| 1A.3 Binary Operation Graph Nodes | Not started |  |  |
-| 1A.4 Dense Constants And `full` | Not started |  |  |
+| 1A.3 Binary Operation Graph Nodes | Done | 2026-06-29 | Added add/mul graph nodes, free op helpers, type checks, producer links, and topological verifier checks. |
+| 1A.4 Dense Constants And `full` | Done | 2026-06-29 | Added dense float constant payloads, `Graph::constant`, `full`, constant verifier checks, and constant tests. |
 | 1A.5 TinyTensor ODS Skeleton | Not started |  |  |
 | 1A.6 Compiler Context And Type Conversion | Not started |  |  |
 | 1A.7 Import Identity Graph | Not started |  |  |
@@ -114,8 +114,20 @@ Tests:
 Graph graph("identity");
 Tensor x = graph.input({.shape = {4}, .dtype = DType::F32, .name = "x"});
 graph.setOutputs({x});
-EXPECT_TRUE(succeeded(graph.verify()));
+EXPECT_TRUE(graph.verify());
 ```
+
+Completed tests in `tests/Frontend/test_graph.cpp`:
+
+- `BuildsIdentityGraph`: creates one input, sets it as output, checks zero nodes, IDs, and verifier success.
+- `InputCreatesGraphValueMetadata`: checks value ID, tensor type, missing producer, and input name metadata.
+- `VerifyRejectsGraphWithoutOutputs`: verifies missing outputs fail with a useful diagnostic string.
+- `SetOutputsRejectsInvalidTensor`: rejects default/invalid tensor handles.
+- `SetOutputsRejectsTensorFromDifferentGraph`: rejects tensors owned by another graph.
+- `ValueRejectsOutOfRangeId`: rejects invalid value lookup.
+- `RejectsEmptyGraphName`: rejects unnamed graphs.
+
+This file is part of the `tinytensor-tests` executable through `tests/CMakeLists.txt`.
 
 Acceptance:
 
@@ -147,6 +159,15 @@ Tests:
 - Cross-graph operands are rejected.
 - Result value records the correct producer node.
 
+Completed tests in `tests/Frontend/test_ops.cpp`:
+
+- `AddCreatesBinaryNodeAndProducedValue`: checks `OpKind::Add`, operands, result, propagated type, and producer ID.
+- `MulCreatesBinaryNodeAndProducedValue`: checks `OpKind::Mul`, result type, and graph verification.
+- `NestedExpressionPreservesTopologicalOrder`: checks `mul` is produced before dependent `add`.
+- `RejectsMismatchedOperandTypes`: rejects different tensor shapes and leaves the graph unchanged.
+- `RejectsCrossGraphOperands`: rejects operands from different graph owners.
+- `RejectsInvalidTensorOperand`: rejects default/invalid tensor handles.
+
 Acceptance:
 
 ```text
@@ -175,6 +196,14 @@ Tests:
 - Constant result type matches requested shape and dtype.
 - Wrong element count is rejected.
 - Constant can feed `mul(x, two)`.
+
+Completed tests in `tests/Frontend/test_constants.cpp`:
+
+- `FullCreatesDenseConstantNode`: checks `OpKind::Constant`, no operands, one result, dense payload values, result type, and producer ID.
+- `ExplicitConstantPreservesProvidedValues`: checks `Graph::constant` stores caller-provided dense values.
+- `RejectsWrongConstantElementCount`: rejects constants whose value count does not match tensor shape and leaves the graph unchanged.
+- `FullSupportsScalarTensor`: verifies rank-0 tensors store one scalar value.
+- `ConstantCanFeedBinaryOperation`: checks a constant result can be consumed by `mul` and graph verification still passes.
 
 Acceptance:
 

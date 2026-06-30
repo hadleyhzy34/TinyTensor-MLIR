@@ -5,6 +5,8 @@ add_executable(tinytensor-tests
   Support/ADT/test_compiler_usecases.cpp
   Frontend/test_types.cpp
   Frontend/test_graph.cpp
+  Frontend/test_ops.cpp
+  Frontend/test_constants.cpp
 )
 
 # Link against the system GoogleTest libraries
